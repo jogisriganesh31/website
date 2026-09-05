@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Referral Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Splash Loader -->
+  <div id="loader">
+    <div id="mosaic-stage"></div>
+    <button class="skip-btn" id="skip-btn" onclick="skipIntro()">Skip Intro ➔</button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="content" style="display:none;">
+    <header>
+      <h1>UPI Referral Hub</h1>
+      <p id="typed-text"></p>
+    </header>
+
+    <!-- PhonePe Referral -->
+    <section class="app-card">
+      <span>PhonePe:</span>
+      <a href="https://phon.pe/w2e0n5c3" class="refer-btn">Refer & Earn</a>
+    </section>
+
+    <!-- Navi UPI Referral -->
+    <section class="app-card">
+      <span>Navi UPI:</span>
+      <a href="https://r.navi.com/ieF5DE" class="refer-btn">Refer & Earn</a>
+    </section>
+
+    <!-- Google Pay Referral -->
+    <section class="app-card">
+      <span>Google Pay:</span>
+      <a href="https://gpay.app.goo.gl/invite-bd7mo9z" class="refer-btn">
+        Earn ₹21 on your first payment
+      </a>
+    </section>
+
+    <!-- Paytm Referral -->
+    <section class="app-card">
+      <span>Paytm:</span>
+      <a href="https://p.paytm.me/xCTH/mp9rtzp6?utmt=090421" class="refer-btn">Refer & Earn</a>
+    </section>
+
+    <!-- Placeholder for more apps -->
+    <section class="app-card"><span>App 5 (Coming Soon)</span></section>
+
+    <footer>
+      <p>For any queries: Ph.No: 9949722953 INDIA</p>
+    </footer>
+  </div>
+
+  <script>
+    let introSkipped = false;
+    let introTyped = false;
+
+    function skipIntro() {
+      if (introSkipped) return;
+      introSkipped = true;
+      const loader = document.getElementById("loader");
+      if (loader) {
+        loader.style.transition = "opacity 0.4s ease";
+        loader.style.opacity = "0";
+        setTimeout(() => {
+          loader.style.display = "none";
+          const content = document.getElementById("content");
+          if (content) {
+            content.style.display = "block";
+            typeIntro();
+          }
+        }, 400);
+      }
+    }
+
+    // Allow Escape or Space to skip
+    window.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" || e.key === " ") {
+        skipIntro();
+      }
+    });
+
+    function initLogoTransition() {
+      const stage = document.getElementById("mosaic-stage");
+      if (!stage) return;
+
+      const img = new Image();
+      img.src = "logo-transparent.png";
+
+      const startBuild = function() {
+        const w = img.naturalWidth || window.innerWidth;
+        const h = img.naturalHeight || (window.innerWidth * 10 / 16);
+        buildMosaicGrid(w, h);
+      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        startBuild();
+      } else {
+        img.onload = startBuild;
+        img.onerror = skipIntro;
+      }
+    }
+
+    function buildMosaicGrid(imgW, imgH) {
+      const stage = document.getElementById("mosaic-stage");
+      if (!stage || introSkipped) return;
+
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      // Optimal square box size for crisp appearance and locked 60fps performance
+      // Generates ~130-180 bold tiles for maximum visual punch and zero lag
+      const targetBoxSize = Math.max(50, Math.min(W, H) / 10);
+      const cols = Math.max(6, Math.round(W / targetBoxSize));
+      const rows = Math.max(5, Math.round(H / targetBoxSize));
+
+      const tileW = W / cols;
+      const tileH = H / rows;
+
+      // Scale logo so it fills the screen majestically, centered on black
+      const imgAspect = imgW / imgH;
+      const screenAspect = W / H;
+      let bgW, bgH;
+
+      if (screenAspect > imgAspect) {
+        bgW = W;
+        bgH = W / imgAspect;
+      } else {
+        bgH = H;
+        bgW = H * imgAspect;
+      }
+
+      const bgX = (W - bgW) / 2;
+      const bgY = (H - bgH) / 2;
+
+      const fragment = document.createDocumentFragment();
+      const tiles = [];
+
+      // Center coordinates for radial separation outward
+      const centerC = (cols - 1) / 2;
+      const centerR = (rows - 1) / 2;
+      // Generous separation distance so pieces visibly detach and space apart
+      const maxSepDist = Math.max(55, Math.min(W, H) * 0.14);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const tile = document.createElement("div");
+          tile.className = "mosaic-tile";
+
+          const left = c * tileW;
+          const top = r * tileH;
+
+          tile.style.left = left + "px";
+          tile.style.top = top + "px";
+          tile.style.width = (tileW + 0.6) + "px";
+          tile.style.height = (tileH + 0.6) + "px";
+
+          tile.style.backgroundImage = "url('logo-transparent.png')";
+          tile.style.backgroundRepeat = "no-repeat";
+          tile.style.backgroundSize = bgW + "px " + bgH + "px";
+          tile.style.backgroundPosition = (bgX - left) + "px " + (bgY - top) + "px";
+
+          // Outward separation vector from screen center
+          const dirX = centerC > 0 ? (c - centerC) / centerC : 0;
+          const dirY = centerR > 0 ? (r - centerR) / centerR : 0;
+          const sepX = (dirX * maxSepDist) + ((Math.random() - 0.5) * 20);
+          const sepY = (dirY * maxSepDist) + ((Math.random() - 0.5) * 20);
+
+          // Normalized diagonal progress from top-left (0,0) to bottom-right (cols-1, rows-1)
+          const normDist = (c + r) / ((cols - 1) + (rows - 1));
+
+          // 3D trajectory flying towards bottom-right in 3D
+          const flyX = (W * 0.8) + (Math.random() * 0.5 * W);
+          const flyY = (H * 0.8) + (Math.random() * 0.5 * H);
+          const flyZ = 180 + Math.random() * 400;
+
+          const rotX = 270 + Math.random() * 450;
+          const rotY = 270 + Math.random() * 450;
+          const rotZ = (Math.random() - 0.5) * 360;
+
+          tile.style.setProperty("--sep-x", sepX.toFixed(1) + "px");
+          tile.style.setProperty("--sep-y", sepY.toFixed(1) + "px");
+          tile.style.setProperty("--fly-x", flyX.toFixed(1) + "px");
+          tile.style.setProperty("--fly-y", flyY.toFixed(1) + "px");
+          tile.style.setProperty("--fly-z", flyZ.toFixed(1) + "px");
+          tile.style.setProperty("--rot-x", rotX.toFixed(1) + "deg");
+          tile.style.setProperty("--rot-y", rotY.toFixed(1) + "deg");
+          tile.style.setProperty("--rot-z", rotZ.toFixed(1) + "deg");
+
+          // Staggered wave timing starting after 700ms initial logo showcase
+          // Wave rolls across gently over 2000ms
+          const delayMs = 700 + normDist * 2000;
+          tile.dataset.delay = delayMs;
+
+          // Free GPU memory immediately once this tile's animation ends
+          tile.addEventListener("animationend", function() {
+            tile.remove();
+          }, { once: true });
+
+          fragment.appendChild(tile);
+          tiles.push(tile);
+        }
+      }
+
+      stage.appendChild(fragment);
+
+      // Live action sequence:
+      // 1. Initial stage pulse
+      stage.classList.add("stage-live-action");
+
+      // 2. Cut lines illuminate at 500ms
+      setTimeout(() => {
+        if (introSkipped) return;
+        tiles.forEach(t => t.classList.add("cut-active"));
+      }, 500);
+
+      // 3. 3D slow floating pop-up and fly-out wave from top-left to bottom-right
+      let maxDelay = 0;
+      tiles.forEach(t => {
+        const d = parseFloat(t.dataset.delay);
+        if (d > maxDelay) maxDelay = d;
+        setTimeout(() => {
+          if (introSkipped) return;
+          t.classList.add("fly-out");
+        }, d);
+      });
+
+      // 4. Reveal content smoothly after all tiles finish (each tile animation is 2600ms)
+      const totalDuration = maxDelay + 2600;
+      setTimeout(() => {
+        if (introSkipped) return;
+        const loader = document.getElementById("loader");
+        if (loader) {
+          loader.style.opacity = "0";
+          setTimeout(() => {
+            if (introSkipped) return;
+            loader.style.display = "none";
+            const content = document.getElementById("content");
+            if (content) {
+              content.style.display = "block";
+              typeIntro();
+            }
+          }, 800);
+        }
+      }, totalDuration);
+    }
+
+    function typeIntro() {
+      if (introTyped) return;
+      introTyped = true;
+      const text = "Hi! I'm your friend SRI GANESH... I created this website from which we can refer and earn money from the following apps.... Don't worry it's not fake and I will give you 50% of the referral amount...";
+      let i = 0;
+      const speed = 40;
+      const el = document.getElementById("typed-text");
+      if (!el) return;
+      el.innerHTML = "";
+      function typeWriter() {
+        if (i < text.length) {
+          el.innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typeWriter, speed);
+        }
+      }
+      typeWriter();
+    }
+
+    window.onload = function() {
+      initLogoTransition();
+    };
+  </script>
+</body>
+</html>

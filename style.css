@@ -1,0 +1,199 @@
+/* ========================================================
+   3D Full-Screen Logo Shatter & Fly-Out Transition (High Performance)
+   ======================================================== */
+#loader {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #111116 0%, #000000 85%);
+  overflow: hidden;
+  z-index: 99999;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transition: opacity 0.7s ease;
+  user-select: none;
+}
+
+#mosaic-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Ambient subtle scale pulse on the stage (GPU compositor friendly) */
+.stage-live-action {
+  animation: stagePulse 1.2s ease-out forwards;
+}
+
+@keyframes stagePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Individual square mosaic box - strictly GPU accelerated */
+.mosaic-tile {
+  position: absolute;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  box-sizing: border-box;
+  background-color: #000;
+  contain: strict;
+  outline: 1px solid rgba(255, 215, 0, 0.15);
+}
+
+/* Subtly show cut seams with crisp golden outline */
+.mosaic-tile.cut-active {
+  outline: 1px solid rgba(255, 215, 0, 0.55);
+}
+
+/* 3D Silky Smooth Floating Pop-Up & Fly-Out Animation */
+.mosaic-tile.fly-out {
+  will-change: transform, opacity;
+  outline: 1.5px solid rgba(255, 215, 0, 0.85);
+  animation: floatPopAndFly 2.6s cubic-bezier(0.22, 0.9, 0.32, 1) forwards;
+}
+
+@keyframes floatPopAndFly {
+  0% {
+    transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);
+    opacity: 1;
+  }
+  /* Stage 1: Prominent 3D Pop-Up & Separation with visible gaps */
+  28% {
+    transform: translate3d(var(--sep-x), var(--sep-y), 230px) 
+               rotateX(calc(var(--rot-x) * 0.12)) 
+               rotateY(calc(var(--rot-y) * 0.12)) 
+               rotateZ(calc(var(--rot-z) * 0.08)) 
+               scale(1.16);
+    opacity: 1;
+  }
+  /* Stage 2: Slow hover & drift transition towards bottom-right */
+  50% {
+    transform: translate3d(calc(var(--sep-x) * 1.5 + var(--fly-x) * 0.1), 
+                          calc(var(--sep-y) * 1.5 + var(--fly-y) * 0.1), 
+                          250px) 
+               rotateX(calc(var(--rot-x) * 0.28)) 
+               rotateY(calc(var(--rot-y) * 0.28)) 
+               rotateZ(calc(var(--rot-z) * 0.2)) 
+               scale(1.08);
+    opacity: 0.95;
+  }
+  /* Stage 3: Smooth slow fly-out off screen towards bottom right */
+  100% {
+    transform: translate3d(var(--fly-x), var(--fly-y), var(--fly-z)) 
+               rotateX(var(--rot-x)) 
+               rotateY(var(--rot-y)) 
+               rotateZ(var(--rot-z)) 
+               scale(0.15);
+    opacity: 0;
+  }
+}
+
+/* Skip Button */
+.skip-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100000;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+  opacity: 0.8;
+}
+
+.skip-btn:hover {
+  opacity: 1;
+  background: rgba(255, 215, 0, 0.35);
+  border-color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Smooth Content Entrance */
+#content {
+  animation: fadeInContent 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main Content */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f8ff url('light-pattern.png') center/cover no-repeat;
+  color: #003366;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+header {
+  padding: 20px;
+}
+h1 {
+  color: #004080;
+}
+#typed-text {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 10px;
+  color: #0059b3;
+}
+.app-card {
+  margin: 15px auto;
+  padding: 10px;
+  border: 1px solid #007acc;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 400px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+}
+.refer-btn {
+  background: #00a86b;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: 0.3s;
+}
+.refer-btn:hover {
+  background: #00c97b;
+}
+footer {
+  margin-top: 30px;
+  padding: 10px;
+  font-size: 14px;
+  border-top: 1px solid #007acc;
+  color: #004080;
+}
